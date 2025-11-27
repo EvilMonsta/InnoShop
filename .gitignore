@@ -1,0 +1,50 @@
+## Build artifacts
+bin/
+obj/
+out/
+artifacts/
+**/bin/
+**/obj/
+**/out/
+
+## IDE
+.vs/
+.vscode/
+.idea/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.DotSettings.user
+
+## Logs & coverage
+*.log
+logs/
+TestResults/
+*.coverage
+*.coveragexml
+coverage*/
+
+## OS junk
+.DS_Store
+Thumbs.db
+
+## NuGet 
+packages/
+*.nupkg
+.nuget/
+
+## Docker / Node 
+**/node_modules/
+*.env
+*.env.*
+
+## Certificates / secrets 
+*.pfx
+*.p12
+
+## Publish profiles 
+**/Properties/PublishProfiles/
+
+## EF Core design-time cache
+*Migrations/obj/
