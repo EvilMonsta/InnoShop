@@ -9,7 +9,7 @@
       "environmentVariables": {
         "ProductsInternal__BaseUrl": "http://localhost:5152",
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "InternalApiKey": "dev-internal"
+        "InternalApiKey": ""
       }
     },
     "https": {
@@ -18,9 +18,9 @@
       "launchBrowser": false,
       "applicationUrl": "https://localhost:7171",
       "environmentVariables": {
-        "ProductsInternal__BaseUrl": "http://localhost:5152",
+        "ProductsInternal__BaseUrl": "https://localhost:7172",
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "InternalApiKey": "dev-internal"
+        "InternalApiKey": ""
       }
     }
   }

@@ -1,10 +1,14 @@
-using System.Text;
 using FluentValidation;
 using FluentValidation.AspNetCore;
+using InnoShop.Products.Api.Security;
 using InnoShop.Products.Application.Validation;
 using InnoShop.Products.Infrastructure.DI;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,6 +32,7 @@ var signingKey = builder.Configuration["JwtSigningKey"]
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(o =>
     {
+        o.MapInboundClaims = false;
         o.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = true,
@@ -36,11 +41,19 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateIssuerSigningKey = true,
             ValidIssuer = issuer,
             ValidAudience = audience,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(signingKey))
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(signingKey)),
+            NameClaimType = JwtRegisteredClaimNames.Sub,
+            RoleClaimType = ClaimTypes.Role
         };
     });
 
-builder.Services.AddAuthorization();
+
+builder.Services.AddAuthorization(o =>
+{
+    o.AddPolicy("ActiveUser", p => p.Requirements.Add(new ActiveUserRequirement()));
+});
+
+builder.Services.AddSingleton<IAuthorizationHandler, ActiveUserHandler>();
 
 var conn = builder.Configuration["SqlStrCon"]
            ?? builder.Configuration["SqlStrConProducts"]

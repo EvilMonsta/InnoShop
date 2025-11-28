@@ -64,7 +64,7 @@ public class ProductsController : ControllerBase
         return new PagedResult<ProductResponse>(items, total, page, pageSize);
     }
 
-    [Authorize]
+    [Authorize(Policy = "ActiveUser")]
     [HttpPost]
     public async Task<ActionResult<ProductResponse>> Create([FromBody] CreateProductRequest req, CancellationToken ct)
     {
@@ -83,7 +83,7 @@ public class ProductsController : ControllerBase
             p.CreatedAt.ToString("O")));
     }
 
-    [Authorize]
+    [Authorize(Policy = "ActiveUser")]
     [HttpPut("{id:guid}")]
     public async Task<IActionResult> Update(Guid id, [FromBody] UpdateProductRequest req, CancellationToken ct)
     {
@@ -100,7 +100,7 @@ public class ProductsController : ControllerBase
         return NoContent();
     }
 
-    [Authorize]
+    [Authorize(Policy = "ActiveUser")]
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> Delete(Guid id, CancellationToken ct)
     {

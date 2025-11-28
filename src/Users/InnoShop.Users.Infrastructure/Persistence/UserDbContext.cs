@@ -10,7 +10,7 @@ namespace InnoShop.Users.Infrastructure.Persistence;
 public class UsersDbContext : DbContext
 {
     public DbSet<User> Users => Set<User>();
-
+    public DbSet<EmailToken> EmailTokens => Set<EmailToken>();
 
     public UsersDbContext(DbContextOptions<UsersDbContext> options) : base(options) { }
 

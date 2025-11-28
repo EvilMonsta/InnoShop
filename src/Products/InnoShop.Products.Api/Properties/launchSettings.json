@@ -8,7 +8,7 @@
       "applicationUrl": "http://localhost:5152",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "InternalApiKey": "dev-internal"
+        "InternalApiKey": ""
       }
     },
     "https": {
@@ -18,7 +18,8 @@
       "applicationUrl": "https://localhost:7172",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "InternalApiKey": "dev-internal"
+        "UsersInternal__BaseUrl": "",
+        "InternalApiKey": ""
       }
     }
   }

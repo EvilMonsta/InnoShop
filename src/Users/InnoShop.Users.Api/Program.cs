@@ -4,6 +4,8 @@ using InnoShop.Users.Api.Middlewares;
 using InnoShop.Users.Infrastructure.DI;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text;
 
 
@@ -32,6 +34,7 @@ var signingKey = builder.Configuration["JwtSigningKey"]
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(o =>
     {
+        o.MapInboundClaims = false;
         o.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = true,
@@ -40,9 +43,12 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateIssuerSigningKey = true,
             ValidIssuer = issuer,
             ValidAudience = audience,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(signingKey))
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(signingKey)),
+            NameClaimType = JwtRegisteredClaimNames.Sub,
+            RoleClaimType = ClaimTypes.Role
         };
     });
+
 
 
 builder.Services.AddAuthorization();
@@ -68,5 +74,18 @@ app.UseMiddleware<GlobalExceptionMiddleware>();
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
+app.MapGet("/__whoami", (HttpContext ctx) =>
+{
+    var claims = ctx.User.Claims.Select(c => new { c.Type, c.Value }).ToList();
+    return Results.Json(new
+    {
+        id = ctx.User.FindFirstValue(JwtRegisteredClaimNames.Sub)
+             ?? ctx.User.FindFirstValue(ClaimTypes.NameIdentifier)
+             ?? "(no sub)",
+        roleClaims = ctx.User.Claims.Where(c => c.Type is "role" or ClaimTypes.Role)
+                                    .Select(c => c.Value)
+    });
+}).RequireAuthorization();
+
 app.MapControllers();
 app.Run();

@@ -1,5 +1,6 @@
 ﻿using InnoShop.Products.Application.Abstractions;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace InnoShop.Products.Api.Controllers;
 
@@ -12,30 +13,38 @@ public class InternalUsersController : ControllerBase
 
     public InternalUsersController(IProductRepository repo, IConfiguration cfg)
     {
-        _repo = repo;
-        _cfg = cfg;
+        _repo = repo; _cfg = cfg;
     }
 
-    private bool CheckInternalKey(HttpRequest req)
+    private bool CheckInternalKey()
     {
-        var expected = _cfg["InternalApiKey"] ?? "dev-internal";
-        return req.Headers.TryGetValue("X-Internal-Key", out var val) && val == expected;
+        var ok = Request.Headers.TryGetValue("X-Internal-Key", out var got);
+        var expected = _cfg["InternalApiKey"];
+        return ok && !string.IsNullOrWhiteSpace(expected) && got == expected;
     }
 
-    [HttpPost("{ownerId:guid}/hide-products")]
-    public async Task<IActionResult> HideProducts(Guid ownerId, CancellationToken ct)
+    [HttpPost("{id:guid}/hide-products")]
+    public async Task<IActionResult> Hide(Guid id, CancellationToken ct)
     {
-        if (!CheckInternalKey(Request)) return Unauthorized();
-        await _repo.HideByOwnerAsync(ownerId, ct);
+        if (!CheckInternalKey()) return Unauthorized();
+
+        var items = await _repo.GetByOwnerIgnoringFiltersAsync(id, ct);
+        foreach (var p in items.Where(p => !p.IsDeleted))
+            p.HideByOwner();
+
         await _repo.SaveChangesAsync(ct);
         return NoContent();
     }
 
-    [HttpPost("{ownerId:guid}/show-products")]
-    public async Task<IActionResult> ShowProducts(Guid ownerId, CancellationToken ct)
+    [HttpPost("{id:guid}/show-products")]
+    public async Task<IActionResult> Show(Guid id, CancellationToken ct)
     {
-        if (!CheckInternalKey(Request)) return Unauthorized();
-        await _repo.ShowByOwnerAsync(ownerId, ct);
+        if (!CheckInternalKey()) return Unauthorized();
+
+        var items = await _repo.GetByOwnerIgnoringFiltersAsync(id, ct);
+        foreach (var p in items.Where(p => !p.IsDeleted && p.IsHiddenByOwnerDeactivation))
+            p.ShowByOwner();
+
         await _repo.SaveChangesAsync(ct);
         return NoContent();
     }

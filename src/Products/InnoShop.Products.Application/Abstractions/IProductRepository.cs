@@ -11,4 +11,6 @@ public interface IProductRepository
     Task SaveChangesAsync(CancellationToken ct = default);
     Task<int> HideByOwnerAsync(Guid ownerUserId, CancellationToken ct = default);
     Task<int> ShowByOwnerAsync(Guid ownerUserId, CancellationToken ct = default);
+    Task<List<Product>> GetByOwnerIgnoringFiltersAsync(Guid ownerUserId, CancellationToken ct = default);
+
 }

@@ -35,4 +35,9 @@ public class ProductRepository : IProductRepository
               .IgnoreQueryFilters()
               .Where(p => p.OwnerUserId == ownerUserId && !p.IsDeleted && p.IsHiddenByOwnerDeactivation)
               .ExecuteUpdateAsync(s => s.SetProperty(p => p.IsHiddenByOwnerDeactivation, false), ct);
+    public Task<List<Product>> GetByOwnerIgnoringFiltersAsync(Guid ownerUserId, CancellationToken ct = default)
+           => _db.Products
+                 .IgnoreQueryFilters()                 
+                 .Where(p => p.OwnerUserId == ownerUserId)
+                 .ToListAsync(ct);
 }
