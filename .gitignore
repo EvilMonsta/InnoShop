@@ -33,6 +33,8 @@ Thumbs.db
 packages/
 *.nupkg
 .nuget/
+**/secrets.json
+/deploy/*.env
 
 ## Docker / Node 
 **/node_modules/

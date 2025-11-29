@@ -11,6 +11,17 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var allowed = builder.Configuration["Cors:AllowedOrigins"]?.Split(';', StringSplitOptions.RemoveEmptyEntries)
+              ?? new[] { "http://localhost:5173", "https://localhost:5173" };
+
+builder.Services.AddCors(o =>
+{
+    o.AddPolicy("Frontend", p => p
+        .WithOrigins(allowed)
+        .AllowAnyHeader()
+        .AllowAnyMethod()
+    );
+});
 
 builder.Services.AddControllers().AddJsonOptions(o =>
 {
@@ -72,6 +83,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseMiddleware<GlobalExceptionMiddleware>();
 app.UseHttpsRedirection();
+app.UseCors("Frontend");
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapGet("/__whoami", (HttpContext ctx) =>
@@ -86,6 +98,5 @@ app.MapGet("/__whoami", (HttpContext ctx) =>
                                     .Select(c => c.Value)
     });
 }).RequireAuthorization();
-
 app.MapControllers();
 app.Run();
