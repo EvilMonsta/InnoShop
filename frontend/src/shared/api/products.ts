@@ -81,3 +81,25 @@ export async function updateProduct(
 export async function deleteProduct(id: string): Promise<void> {
   await productsApi.delete(`/products/${id}`);
 }
+
+export async function getProductsAdmin(
+  filter: ProductFilter,
+): Promise<ProductPagedResult> {
+  const params: Record<string, unknown> = {
+    q: filter.q,
+    minPrice: filter.minPrice,
+    maxPrice: filter.maxPrice,
+    ownerUserId: filter.ownerUserId,
+    page: filter.page ?? 1,
+    pageSize: filter.pageSize ?? 20,
+  };
+
+  if (filter.onlyAvailable !== undefined) {
+    params.onlyAvailable = filter.onlyAvailable;
+  }
+
+  const res = await productsApi.get<ProductPagedResult>('/products', {
+    params,
+  });
+  return res.data;
+}

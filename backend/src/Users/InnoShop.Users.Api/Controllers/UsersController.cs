@@ -1,11 +1,12 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using InnoShop.Users.Application.Abstractions;
+﻿using InnoShop.Users.Application.Abstractions;
 using InnoShop.Users.Contracts.Requests;
 using InnoShop.Users.Contracts.Responses;
 using InnoShop.Users.Domain.Users;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace InnoShop.Users.Api.Controllers;
 
@@ -124,6 +125,52 @@ public class UsersController : ControllerBase
 
         await _productsInternal.ShowProductsAsync(id, ct);
         return NoContent();
+    }
+
+    [Authorize(Roles = "Admin")]
+    [HttpGet]
+    public async Task<ActionResult<UserResponse>> List(
+       [FromQuery] string? q,
+       [FromQuery] string? role,
+       [FromQuery] bool? isActive,
+       [FromQuery] bool? emailConfirmed,
+       [FromQuery] int page = 1,
+       [FromQuery] int pageSize = 50,
+       CancellationToken ct = default)
+    {
+        page = page < 1 ? 1 : page;
+        pageSize = pageSize is < 1 or > 200 ? 50 : pageSize;
+
+        var query = _users.Query();
+
+        if (!string.IsNullOrWhiteSpace(q))
+        {
+            var qc = q.ToLower();
+            query = query.Where(u =>
+                u.Name.ToLower().Contains(qc) ||
+                u.Email.ToLower().Contains(qc));
+        }
+
+        if (!string.IsNullOrWhiteSpace(role) && Enum.TryParse<Role>(role, true, out var r))
+            query = query.Where(u => u.Role == r);
+
+        if (isActive.HasValue)
+            query = query.Where(u => u.IsActive == isActive.Value);
+
+        if (emailConfirmed.HasValue)
+            query = query.Where(u => u.EmailConfirmed == emailConfirmed.Value);
+
+        var total = await query.CountAsync(ct);
+
+        var items = await query
+            .OrderByDescending(u => u.CreatedAt)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .Select(u => new UserResponse(
+                u.Id, u.Name, u.Email, u.Role.ToString(), u.IsActive, u.EmailConfirmed, u.CreatedAt.ToString("O")))
+            .ToListAsync(ct);
+
+        return Ok(new InnoShop.Users.Contracts.Responses.PagedResult<UserResponse>(items, total, page, pageSize));
     }
 
 }

@@ -1,5 +1,6 @@
 import { usersApi } from './http';
 
+
 export interface AuthResponse {
   AccessToken: string | null;
   TokenType: string | null;
@@ -24,6 +25,22 @@ export interface RegisterFormValues {
   name: string;
   email: string;
   password: string;
+}
+
+export interface UserFilter {
+  q?: string;
+  role?: string;
+  isActive?: boolean;
+  emailConfirmed?: boolean;
+  page?: number;
+  pageSize?: number;
+}
+
+export interface UserPagedResult {
+  Items: UserResponse[] | null;
+  Total: number;
+  Page: number;
+  PageSize: number;
 }
 
 
@@ -53,6 +70,22 @@ export async function getUserById(id: string): Promise<UserResponse> {
   return res.data;
 }
 
+export async function listUsers(
+  filter: UserFilter,
+): Promise<UserPagedResult> {
+  const res = await usersApi.get<UserPagedResult>('/users', {
+    params: {
+      q: filter.q,
+      role: filter.role,
+      isActive: filter.isActive,
+      emailConfirmed: filter.emailConfirmed,
+      page: filter.page ?? 1,
+      pageSize: filter.pageSize ?? 50,
+    },
+  });
+  return res.data;
+}
+
 export async function updateUserName(
   id: string,
   name: string,
@@ -70,6 +103,7 @@ export async function deactivateUser(id: string): Promise<void> {
 export async function reactivateUser(id: string): Promise<void> {
   await usersApi.post(`/users/${id}/reactivate`);
 }
+
 export async function requestEmailConfirmation(userId: string): Promise<void> {
   await usersApi.post('/auth/request-email-confirmation', {
     UserId: userId,
@@ -90,6 +124,11 @@ export async function confirmPasswordReset(
     NewPassword: newPassword,
   });
 }
+
 export async function confirmEmail(token: string): Promise<void> {
   await usersApi.get(`/auth/confirm-email/${token}`);
+}
+
+export async function deleteUserAccount(id: string): Promise<void> {
+  await usersApi.delete(`/users/${id}`);
 }

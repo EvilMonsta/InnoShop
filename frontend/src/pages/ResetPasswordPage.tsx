@@ -52,7 +52,6 @@ export function ResetPasswordPage() {
       setStatusMessage(
         'Пароль успешно изменён. Теперь вы можете войти с новым паролем.',
       );
-      navigate('/login');
     } catch {
       setErrorMessage(
         'Ошибка при смене пароля. Возможно, ссылка устарела или неправильна.',

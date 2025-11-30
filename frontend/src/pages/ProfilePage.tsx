@@ -1,5 +1,6 @@
 import { useForm } from 'react-hook-form';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../shared/auth/useAuth';
 import {
   updateUserName,
@@ -7,6 +8,7 @@ import {
   reactivateUser,
   requestEmailConfirmation,
   requestPasswordReset,
+  deleteUserAccount,
 } from '../shared/api/users';
 
 interface ProfileFormValues {
@@ -14,11 +16,13 @@ interface ProfileFormValues {
 }
 
 export function ProfilePage() {
-  const { user, reloadUser } = useAuth();
+  const { user, reloadUser, logout } = useAuth();
+  const navigate = useNavigate();
   const [isSaving, setIsSaving] = useState(false);
   const [isToggling, setIsToggling] = useState(false);
   const [isEmailSending, setIsEmailSending] = useState(false);
   const [isResetSending, setIsResetSending] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [emailMessage, setEmailMessage] = useState<string | null>(null);
   const [resetMessage, setResetMessage] = useState<string | null>(null);
 
@@ -36,7 +40,7 @@ export function ProfilePage() {
     setIsSaving(true);
     try {
       await updateUserName(user.id, data.name);
-      await reloadUser(); 
+      await reloadUser();
     } finally {
       setIsSaving(false);
     }
@@ -93,6 +97,26 @@ export function ProfilePage() {
     }
   };
 
+  const handleDeleteAccount = async () => {
+    if (
+      !window.confirm(
+        'Вы уверены, что хотите безвозвратно удалить свой аккаунт?',
+      )
+    ) {
+      return;
+    }
+
+    setIsDeleting(true);
+    try {
+      await deleteUserAccount(user.id);
+      logout();
+      navigate('/', { replace: true });
+    } catch {
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   return (
     <div>
       <h1>Профиль</h1>
@@ -104,10 +128,13 @@ export function ProfilePage() {
       </p>
       <p>
         Почта подтверждена:{' '}
-        <strong style={{ color: user.emailConfirmed ? 'green' : 'red' }}>
+        <strong
+          style={{ color: user.emailConfirmed ? 'green' : 'var(--danger)' }}
+        >
           {user.emailConfirmed ? 'Да' : 'Нет'}
         </strong>
       </p>
+
       <form onSubmit={handleSubmit(onSubmit)}>
         <div>
           <label>Имя</label>
@@ -119,7 +146,14 @@ export function ProfilePage() {
         </button>
       </form>
 
-      <div style={{ marginTop: '1.5rem', display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+      <div
+        style={{
+          marginTop: '1.5rem',
+          display: 'flex',
+          gap: '0.75rem',
+          flexWrap: 'wrap',
+        }}
+      >
         {user.isActive ? (
           <button
             type="button"
@@ -139,7 +173,7 @@ export function ProfilePage() {
             Активировать аккаунт
           </button>
         )}
-        
+
         <button
           type="button"
           className="primary"
@@ -154,7 +188,16 @@ export function ProfilePage() {
           onClick={handleRequestPasswordReset}
           disabled={isResetSending}
         >
-          Отправить письмо для сброса пароля
+          Сбросить пароль по email
+        </button>
+
+        <button
+          type="button"
+          className="danger"
+          onClick={handleDeleteAccount}
+          disabled={isDeleting}
+        >
+          Удалить мой аккаунт
         </button>
       </div>
 

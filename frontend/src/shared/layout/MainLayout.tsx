@@ -13,9 +13,15 @@ export function MainLayout({ children }: { children: ReactNode }) {
         </Link>
 
         <nav className="nav">
-          <NavLink to="/products">Каталог</NavLink>
-          {isAuthenticated && <NavLink to="/my-products">Мои товары</NavLink>}
-          {isAuthenticated && <NavLink to="/products/new">Создать товар</NavLink>}
+        <NavLink to="/products">Каталог</NavLink>
+        {isAuthenticated && <NavLink to="/my-products">Мои товары</NavLink>}
+        {isAuthenticated && <NavLink to="/products/new">Создать товар</NavLink>}
+        {isAuthenticated && user?.role === 'Admin' && (
+            <>
+            <NavLink to="/admin/users">Админ: пользователи</NavLink>
+            <NavLink to="/admin/products">Админ: товары</NavLink>
+            </>
+        )}
         </nav>
 
         <div className="auth-block">

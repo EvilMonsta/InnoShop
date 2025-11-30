@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { MainLayout } from './shared/layout/MainLayout';
 import { HomePage } from './pages/HomePage';
 import { LoginPage } from './pages/LoginPage';
@@ -11,6 +11,9 @@ import { NotFoundPage } from './pages/NotFoundPage';
 import { ProtectedRoute } from './shared/auth/ProtectedRoute';
 import { ResetPasswordPage } from './pages/ResetPasswordPage';
 import { ConfirmEmailPage } from './pages/ConfirmEmailPage';
+import { AdminRoute } from './shared/auth/AdminRoute';
+import { AdminUsersPage } from './pages/AdminUsersPage';
+import { AdminProductsPage } from './pages/AdminProductsPage';
 
 export function AppRouter() {
   return (
@@ -24,6 +27,29 @@ export function AppRouter() {
         <Route path="/products" element={<ProductsPage />} />
         <Route path="/reset/:token" element={<ResetPasswordPage />} />
         <Route path="/confirm/:token" element={<ConfirmEmailPage />} />
+       
+        <Route
+        path="/admin/users"
+        element={
+            <AdminRoute>
+            <AdminUsersPage />
+            </AdminRoute>
+        }
+        />
+
+        <Route
+        path="/admin/products"
+        element={
+            <AdminRoute>
+            <AdminProductsPage />
+            </AdminRoute>
+        }
+        />
+
+        <Route
+        path="/admin"
+        element={<Navigate to="/admin/users" replace />}
+        />
 
         <Route
           path="/my-products"

@@ -37,7 +37,7 @@ public class UserRepository : IUserRepository
         _db.Users.Remove(user);
         return Task.CompletedTask;
     }
-
-
     public Task SaveChangesAsync(CancellationToken ct = default) => _db.SaveChangesAsync(ct);
+    public IQueryable<User> Query() => _db.Users.AsQueryable();
+
 }

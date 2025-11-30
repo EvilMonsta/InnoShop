@@ -89,10 +89,11 @@ public class ProductsController : ControllerBase
     {
         var callerId = User.FindFirstValue("sub") ?? User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (callerId is null) return Forbid();
+        var isAdmin = User.IsInRole("Admin");
 
         var p = await _products.GetByIdAsync(id, ct);
         if (p is null) return NotFound();
-        if (p.OwnerUserId.ToString() != callerId) return Forbid();
+        if (!isAdmin && p.OwnerUserId.ToString() != callerId) return Forbid();
 
         p.Update(req.Name, req.Description, req.Price, req.IsAvailable);
         await _products.UpdateAsync(p, ct);
@@ -106,10 +107,11 @@ public class ProductsController : ControllerBase
     {
         var callerId = User.FindFirstValue("sub") ?? User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (callerId is null) return Forbid();
+        var isAdmin = User.IsInRole("Admin");
 
         var p = await _products.GetByIdAsync(id, ct);
         if (p is null) return NotFound();
-        if (p.OwnerUserId.ToString() != callerId) return Forbid();
+        if (!isAdmin && p.OwnerUserId.ToString() != callerId) return Forbid();
 
         p.SoftDelete();
         await _products.UpdateAsync(p, ct);

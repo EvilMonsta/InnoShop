@@ -12,4 +12,6 @@ public interface IUserRepository
     Task UpdateAsync(User user, CancellationToken ct = default);
     Task DeleteAsync(User user, CancellationToken ct = default);
     Task SaveChangesAsync(CancellationToken ct = default);
+    IQueryable<User> Query();
+
 }
