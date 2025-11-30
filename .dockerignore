@@ -1,0 +1,10 @@
+.git
+.vs
+.vscode
+**/bin/
+**/obj/
+frontend/node_modules
+deploy
+*.user
+*.suo
+*.log

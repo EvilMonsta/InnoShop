@@ -13,15 +13,19 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 var allowed = builder.Configuration["Cors:AllowedOrigins"]?.Split(';', StringSplitOptions.RemoveEmptyEntries)
-              ?? new[] { "http://localhost:5173", "https://localhost:5173" };
+              ?? new[] { "http://localhost:8080", "http://localhost:5173", "https://localhost:5173" };
+Console.WriteLine("CORS allowed origins: " + string.Join(", ", allowed));
 
 builder.Services.AddCors(o =>
 {
-    o.AddPolicy("Frontend", p => p
-        .WithOrigins(allowed)
-        .AllowAnyHeader()
-        .AllowAnyMethod()
-    );
+    o.AddPolicy("Frontend", p =>
+    {
+
+        p.WithOrigins(allowed)
+         .AllowAnyHeader()
+         .AllowAnyMethod()
+         .AllowCredentials();
+    });
 });
 
 builder.Services.AddControllers().AddJsonOptions(o =>
@@ -78,9 +82,16 @@ var app = builder.Build();
 app.Lifetime.ApplicationStarted.Register(() =>
 {
     using var scope = app.Services.CreateScope();
-    var db = scope.ServiceProvider.GetRequiredService<UsersDbContext>();
-    db.Database.Migrate();
+
+    if (scope.ServiceProvider.GetService<UsersDbContext>() is { } udb)
+    {
+        var hasPending = udb.Database.GetPendingMigrations().Any();
+        if (hasPending) udb.Database.Migrate();
+        else udb.Database.EnsureCreated(); 
+    }
+
 });
+
 
 app.MapGet("/health", () => Results.Ok(new { ok = true }));
 
@@ -91,7 +102,6 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseMiddleware<GlobalExceptionMiddleware>();
-app.UseHttpsRedirection();
 app.UseCors("Frontend");
 app.UseAuthentication();
 app.UseAuthorization();

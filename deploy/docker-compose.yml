@@ -1,0 +1,66 @@
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: ${PG_USER}
+      POSTGRES_PASSWORD: ${PG_PASSWORD}
+    ports:
+      - "${PG_HOST_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  users-api:
+    build:
+      context: ../
+      dockerfile: backend/docker/users-api.Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
+      ConnectionStrings__Default: Host=postgres;Port=5432;Database=${USERS_DB:-usersdb};Username=${PG_USER};Password=${PG_PASSWORD}
+      Jwt__Issuer: ${JWT_ISSUER:-innoshop}
+      Jwt__Audience: ${JWT_AUDIENCE:-innoshop.clients}
+      Jwt__SigningKey: ${JWT_SIGNING_KEY}
+      InternalApiKey: ${INTERNAL_API_KEY}
+      ProductsInternal__BaseUrl: http://products-api:8080
+      Cors__AllowedOrigins: ${CORS_ALLOWED_ORIGINS:-http://localhost:8080;http://localhost:5173;https://localhost:5173}
+      Smtp__Host: ${SMTP_HOST}
+      Smtp__Port: ${SMTP_PORT:-587}
+      Smtp__User: ${SMTP_USER}
+      Smtp__Password: ${SMTP_PASSWORD}
+      Smtp__From: ${SMTP_FROM}
+      Smtp__EnableSsl: ${SMTP_ENABLE_SSL:-true}
+      ApiBaseUrl: http://users-api:8080
+      Frontend__BaseUrl: ${FRONTEND_BASE_URL:-http://localhost:8080/#}
+    depends_on: [postgres]
+    ports:
+      - "5001:8080"
+
+  products-api:
+    build:
+      context: ../
+      dockerfile: backend/docker/products-api.Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
+      ConnectionStrings__Default: Host=postgres;Port=5432;Database=${PRODUCTS_DB:-productsdb};Username=${PG_USER};Password=${PG_PASSWORD}
+      Jwt__Issuer: ${JWT_ISSUER:-innoshop}
+      Jwt__Audience: ${JWT_AUDIENCE:-innoshop.clients}
+      Jwt__SigningKey: ${JWT_SIGNING_KEY}
+      InternalApiKey: ${INTERNAL_API_KEY}
+      UsersInternal__BaseUrl: http://users-api:8080
+      Cors__AllowedOrigins: ${CORS_ALLOWED_ORIGINS:-http://localhost:8080;http://localhost:5173;https://localhost:5173}
+    depends_on: [postgres]
+    ports:
+      - "5002:8080"
+
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: docker/frontend.Dockerfile
+      args:
+        VITE_USERS_API: ${VITE_USERS_API:-http://localhost:5001}
+        VITE_PRODUCTS_API: ${VITE_PRODUCTS_API:-http://localhost:5002}
+    ports:
+      - "8080:8080"
+    depends_on: [users-api, products-api]
+
+volumes:
+  pgdata:

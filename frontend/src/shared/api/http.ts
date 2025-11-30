@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-const usersBaseUrl = import.meta.env.VITE_USERS_API_URL;
-const productsBaseUrl = import.meta.env.VITE_PRODUCTS_API_URL;
+const usersBaseUrl = import.meta.env.VITE_USERS_API;
+const productsBaseUrl = import.meta.env.VITE_PRODUCTS_API;
 
 export const usersApi = axios.create({
   baseURL: `${usersBaseUrl}/api`,
