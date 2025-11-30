@@ -9,6 +9,8 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Microsoft.EntityFrameworkCore;
+using InnoShop.Products.Infrastructure.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -75,6 +77,15 @@ var conn = builder.Configuration["SqlStrCon"]
 builder.Services.AddProductsInfrastructure(conn);
 
 var app = builder.Build();
+
+app.Lifetime.ApplicationStarted.Register(() =>
+{
+    using var scope = app.Services.CreateScope();
+    var db = scope.ServiceProvider.GetRequiredService<ProductsDbContext>();
+    db.Database.Migrate();
+});
+
+app.MapGet("/health", () => Results.Ok(new { ok = true }));
 
 if (app.Environment.IsDevelopment())
 {

@@ -18,11 +18,13 @@ interface ProfileFormValues {
 export function ProfilePage() {
   const { user, reloadUser, logout } = useAuth();
   const navigate = useNavigate();
+
   const [isSaving, setIsSaving] = useState(false);
   const [isToggling, setIsToggling] = useState(false);
   const [isEmailSending, setIsEmailSending] = useState(false);
   const [isResetSending, setIsResetSending] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+
   const [emailMessage, setEmailMessage] = useState<string | null>(null);
   const [resetMessage, setResetMessage] = useState<string | null>(null);
 
@@ -98,13 +100,10 @@ export function ProfilePage() {
   };
 
   const handleDeleteAccount = async () => {
-    if (
-      !window.confirm(
-        'Вы уверены, что хотите безвозвратно удалить свой аккаунт?',
-      )
-    ) {
-      return;
-    }
+    const ok = window.confirm(
+      'Вы уверены, что хотите безвозвратно удалить свой аккаунт?',
+    );
+    if (!ok) return;
 
     setIsDeleting(true);
     try {
@@ -150,8 +149,8 @@ export function ProfilePage() {
         style={{
           marginTop: '1.5rem',
           display: 'flex',
-          gap: '0.75rem',
           flexWrap: 'wrap',
+          gap: '0.75rem',
         }}
       >
         {user.isActive ? (
@@ -166,7 +165,7 @@ export function ProfilePage() {
         ) : (
           <button
             type="button"
-            className="primary"
+            className="danger"
             onClick={handleActivate}
             disabled={isToggling}
           >
@@ -185,6 +184,7 @@ export function ProfilePage() {
 
         <button
           type="button"
+          className="primary"
           onClick={handleRequestPasswordReset}
           disabled={isResetSending}
         >

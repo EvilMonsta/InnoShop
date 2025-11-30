@@ -1,4 +1,3 @@
-/* ===== Reset ===== */
 *,
 *::before,
 *::after {
@@ -13,7 +12,6 @@ body,
   padding: 0;
 }
 
-/* ===== Theme vars ===== */
 :root {
   --bg-body: #f3f4f6;
   --bg-surface: #ffffff;
@@ -40,7 +38,6 @@ body,
   --transition-normal: 0.2s ease;
 }
 
-/* ===== Base ===== */
 body {
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
     sans-serif;
@@ -62,14 +59,12 @@ button {
   font: inherit;
 }
 
-/* ===== Layout ===== */
 .app {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
 }
 
-/* ===== Header / navbar ===== */
 .app-header {
   position: sticky;
   top: 0;
@@ -99,7 +94,6 @@ button {
   opacity: 0.9;
 }
 
-/* Навигация */
 .nav {
   display: flex;
   gap: 1rem;
@@ -125,7 +119,6 @@ button {
   color: #111827;
 }
 
-/* Блок авторизации */
 .auth-block {
   display: flex;
   align-items: center;
@@ -167,7 +160,6 @@ button {
   transform: translateY(-1px);
 }
 
-/* ===== Content ===== */
 .app-content {
   flex: 1;
   padding: 1.5rem 2rem 2rem;
@@ -175,7 +167,6 @@ button {
   margin: 0 auto;
 }
 
-/* Карточка страницы */
 .app-content > div {
   background-color: var(--bg-surface);
   border-radius: var(--radius-lg);
@@ -183,7 +174,6 @@ button {
   box-shadow: var(--shadow-soft);
 }
 
-/* Заголовки и текст */
 .app-content h1 {
   margin-top: 0;
   margin-bottom: 1rem;
@@ -197,7 +187,6 @@ button {
   color: var(--text-muted);
 }
 
-/* ===== Forms ===== */
 form {
   display: flex;
   flex-direction: column;
@@ -246,27 +235,30 @@ input[type='checkbox'] {
   box-shadow: none;
 }
 
-/* Ошибки формы */
 form p {
   margin: 0.1rem 0 0;
   font-size: 0.8rem;
   color: var(--danger);
 }
 
-/* Кнопки */
 button[type='submit'],
-button.primary {
+button.primary,
+button.danger {
   align-self: flex-start;
   margin-top: 0.25rem;
-  padding: 0.5rem 1.2rem;
-  border-radius: 999px;
-  border: none;
-  background: var(--accent);
+  padding: 0.5rem 0.5rem;
+  border-radius: 999px;     
+  border: none;            
   color: #f9fafb;
   font-weight: 600;
   cursor: pointer;
   transition: background-color var(--transition-normal),
     transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+button[type='submit'],
+button.primary {
+  background: var(--accent);
   box-shadow: 0 8px 20px rgba(37, 99, 235, 0.35);
 }
 
@@ -277,14 +269,6 @@ button.primary:hover {
   box-shadow: 0 10px 25px rgba(37, 99, 235, 0.4);
 }
 
-button[type='submit']:disabled,
-button.primary:disabled {
-  opacity: 0.6;
-  cursor: default;
-  transform: none;
-  box-shadow: none;
-}
-
 button.danger {
   background-color: var(--danger);
   box-shadow: 0 8px 20px rgba(239, 68, 68, 0.35);
@@ -292,10 +276,10 @@ button.danger {
 
 button.danger:hover {
   background-color: #b91c1c;
+  transform: translateY(-1px);
   box-shadow: 0 10px 25px rgba(239, 68, 68, 0.4);
 }
 
-/* ===== Tables ===== */
 table {
   width: 100%;
   border-collapse: collapse;
@@ -361,7 +345,6 @@ td button:hover {
   transform: translateY(-1px);
 }
 
-/* ===== Filters / search ===== */
 .filters-row {
   display: flex;
   flex-wrap: wrap;
@@ -376,7 +359,6 @@ td button:hover {
   color: var(--text-muted);
 }
 
-/* ===== Pagination ===== */
 .pagination {
   display: flex;
   align-items: center;
@@ -406,7 +388,6 @@ td button:hover {
   transform: none;
 }
 
-/* ===== 404 ===== */
 .not-found {
   text-align: center;
 }
@@ -416,7 +397,6 @@ td button:hover {
   margin-bottom: 0.5rem;
 }
 
-/* ===== Responsive ===== */
 @media (max-width: 768px) {
   .app-header {
     padding: 0.6rem 1rem;

@@ -13,7 +13,9 @@ export function MainLayout({ children }: { children: ReactNode }) {
         </Link>
 
         <nav className="nav">
-        <NavLink to="/products">Каталог</NavLink>
+        <NavLink to="/products" end>
+        Каталог
+        </NavLink>
         {isAuthenticated && <NavLink to="/my-products">Мои товары</NavLink>}
         {isAuthenticated && <NavLink to="/products/new">Создать товар</NavLink>}
         {isAuthenticated && user?.role === 'Admin' && (
